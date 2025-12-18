@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "title": "Local sample",
+  "items": [
+    { "id": 1, "name": "Alpha" },
+    { "id": 2, "name": "Beta" }
+  ],
+  "updated": "2025-12-16T00:00:00Z"
+}
