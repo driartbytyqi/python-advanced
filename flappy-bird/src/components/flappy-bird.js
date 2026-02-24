@@ -2,17 +2,16 @@ import react from "react";
 import { View } from "react-native";
 
 
-const FlappyBird = () => {
+const FlappyBird = ({ birdBottom, birdLeft }) => {
     return (
         <View
             style={{
-                posiyion: "absolute",
+                position: "absolute",
                 width: 50,
                 height: 50,
                 backgroundColor: "blue",
-                left: 100,
-                bootom:birdBottom
-
+                left: birdLeft,
+                bottom: birdBottom
             }}>
         </View>
     )
