@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { HapticTab } from '../../components/haptic-tab';
+import { useColorScheme } from '../../hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -13,7 +13,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#60A5FA',
         tabBarInactiveTintColor: '#999',
         headerStyle: {
-          backgroundColor: '#60A5FA',
+          backgroundColor: '#121212',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {
