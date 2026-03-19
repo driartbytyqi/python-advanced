@@ -154,7 +154,7 @@ export const deleteWorkout = async (workoutId) => {
 // Progress endpoints
 export const getProgressData = async () => {
   try {
-    const response = await apiClient.get('/progress');
+    const response = await apiClient.get('/workouts/progress/summary');
     return response.data;
   } catch (error) {
     console.error('Get progress data error:', error);

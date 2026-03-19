@@ -76,36 +76,53 @@ CREATE TABLE progress (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
--- 6. INSERT SAMPLE DATA (Optional)
+-- 9. ADD YOUTUBE_URL COLUMN (New!)
+-- ============================================
+ALTER TABLE workouts ADD COLUMN youtube_url VARCHAR(500) NULL;
+
+-- ============================================
+-- 6. INSERT SAMPLE DATA (Optional - with YouTube!)
 -- ============================================
 
 -- Sample User
 INSERT INTO users (email, password, name, age, weight, height) 
 VALUES ('john@example.com', '$2a$10$example_hash_here', 'John Doe', 28, 75.50, 180);
 
--- Sample Workout
-INSERT INTO workouts (user_id, name, date, duration, completed, notes) 
-VALUES (1, 'Upper Body Workout', '2026-03-12', 60, 0, 'Focused on chest and shoulders');
+-- Sample Workouts WITH YouTube URLs
+INSERT INTO workouts (user_id, name, date, duration, completed, notes, youtube_url) 
+VALUES 
+  (1, 'Full Body Workout', '2024-10-01', 30, 1, 'Complete beginner HIIT', 'https://www.youtube.com/watch?v=SGHF8q9JdxE'),
+  (1, 'Upper Body Strength', '2024-10-02', 45, 0, 'Chest, shoulders, back focus', 'https://www.youtube.com/watch?v=FBYJ3aXm8uY'),
+  (1, 'Leg Day Burn', '2024-10-03', 40, 1, 'Quads, hamstrings, calves', 'https://www.youtube.com/watch?v=WC4OcPQRGE4'),
+  (1, 'Upper Body Workout', '2026-03-12', 60, 0, 'Focused on chest and shoulders', NULL);
 
--- Sample Exercise
+-- Sample Exercises (for first workout)
 INSERT INTO exercises (workout_id, name, sets, reps, weight, duration) 
 VALUES 
-  (1, 'Bench Press', 4, 10, 80.00, NULL),
-  (1, 'Incline Dumbbell Press', 3, 12, 30.00, NULL),
-  (1, 'Shoulder Press', 3, 10, 40.00, NULL);
+  (1, 'Bodyweight Squats', 3, 15, NULL, NULL),
+  (1, 'Push-ups', 3, 12, NULL, NULL),
+  (1, 'Plank', 3, NULL, NULL, 30),
+  (4, 'Bench Press', 4, 10, 80.00, NULL),
+  (4, 'Incline Dumbbell Press', 3, 12, 30.00, NULL),
+  (4, 'Shoulder Press', 3, 10, 40.00, NULL);
 
 -- Sample Progress
 INSERT INTO progress (user_id, workout_id, metric_name, metric_value, recorded_date) 
 VALUES 
-  (1, 1, 'Steps', 8500, '2026-03-12'),
-  (1, 1, 'Calories Burned', 450, '2026-03-12'),
-  (1, 1, 'Distance', 6.5, '2026-03-12');
+  (1, 1, 'Steps', 8500, '2024-10-01'),
+  (1, 1, 'Calories Burned', 450, '2024-10-01'),
+  (1, 1, 'Distance', 6.5, '2024-10-01'); 
 
 -- ============================================
 -- 7. VERIFY TABLES CREATED
 -- ============================================
 -- Run this to verify all tables are created:
 -- SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'fitness_tracker';
+
+-- ============================================
+-- 10. VERIFY YOUTUBE COLUMN ADDED
+-- ============================================
+-- DESCRIBE workouts;  -- Should show youtube_url column
 
 -- ============================================
 -- 8. VIEW TABLE STRUCTURE

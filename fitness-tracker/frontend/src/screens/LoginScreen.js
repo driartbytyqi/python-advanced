@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,11 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import axios from 'axios';
-import { API_BASE_URL } from '../services/api';
+import { login } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,14 +24,12 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
-        password,
-      });
+      const response = await login(email.trim(), password);
 
-      if (response.data.token) {
-        // Store token and navigate to home
-        navigation.replace('MainApp');
+      if (response?.token) {
+        setIsLoggedIn(true);
+      } else {
+        Alert.alert('Login Error', 'Invalid login response from server.');
       }
     } catch (error) {
       Alert.alert('Login Error', error.response?.data?.message || 'Login failed');
@@ -50,6 +49,7 @@ export default function LoginScreen({ navigation }) {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
         editable={!loading}
       />
 

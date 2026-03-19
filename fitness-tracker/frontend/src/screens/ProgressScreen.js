@@ -5,14 +5,72 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
 import { getProgressData } from '../services/api';
 import ProgressChart from '../components/ProgressChart';
 
-export default function ProgressScreen() {
+const getActivityIcon = (name = '') => {
+  const lower = name.toLowerCase();
+  if (lower.includes('cardio') || lower.includes('run')) {
+    return '\u{1F3C3}';
+  }
+  if (lower.includes('leg') || lower.includes('lower')) {
+    return '\u{1F9B5}';
+  }
+  if (lower.includes('upper') || lower.includes('strength')) {
+    return '\u{1F3CB}\u{FE0F}';
+  }
+  return '\u{1F4AA}';
+};
+
+const formatActivityDate = (dateString) => {
+  if (!dateString) {
+    return 'Date not set';
+  }
+
+  const parts = dateString.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) {
+    return dateString;
+  }
+
+  const activityDate = new Date(parts[0], parts[1] - 1, parts[2]);
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const activityStart = new Date(
+    activityDate.getFullYear(),
+    activityDate.getMonth(),
+    activityDate.getDate(),
+  );
+
+  const diffMs = todayStart - activityStart;
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return 'Today';
+  }
+  if (diffDays === 1) {
+    return 'Yesterday';
+  }
+
+  return activityDate.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+const formatDuration = (duration) => {
+  if (!duration) {
+    return '?';
+  }
+  return `${duration} min`;
+};
+
+export default function ProgressScreen({ navigation }) {
   const [progressData, setProgressData] = useState(null);
   const [stats, setStats] = useState(null);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,11 +83,23 @@ export default function ProgressScreen() {
       const data = await getProgressData();
       setProgressData(data.chartData);
       setStats(data.stats);
+      setRecentActivity(data.recentActivity || []);
     } catch (error) {
       console.error('Error fetching progress data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleActivityPress = (activity) => {
+    if (!activity?.id || !navigation?.navigate) {
+      return;
+    }
+
+    navigation.navigate('Home', {
+      screen: 'Workout',
+      params: { workoutId: activity.id },
+    });
   };
 
   if (loading) {
@@ -66,20 +136,34 @@ export default function ProgressScreen() {
 
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Total Duration</Text>
-          <Text style={styles.statValue}>
-            {stats?.totalDuration || 0} hrs
-          </Text>
+          <Text style={styles.statValue}>{stats?.totalDuration || 0} hrs</Text>
         </View>
       </View>
 
       <View style={styles.recentActivity}>
         <Text style={styles.activityTitle}>Recent Activity</Text>
-        {stats?.recentActivity?.map((activity, index) => (
-          <View key={index} style={styles.activityItem}>
-            <Text style={styles.activityDate}>{activity.date}</Text>
-            <Text style={styles.activityWorkout}>{activity.workout}</Text>
-          </View>
-        ))}
+        {recentActivity.length === 0 ? (
+          <Text style={styles.emptyActivity}>No workouts yet. Log one to see it here.</Text>
+        ) : (
+          recentActivity.map((activity, index) => (
+            <TouchableOpacity
+              key={activity.id ?? `${activity.name}-${activity.date}-${index}`}
+              style={styles.activityItem}
+              onPress={() => handleActivityPress(activity)}
+              disabled={!activity.id}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.activityIcon}>{getActivityIcon(activity.name)}</Text>
+              <View style={styles.activityDetails}>
+                <Text style={styles.activityName}>{activity.name}</Text>
+                <Text style={styles.activityTime}>{formatActivityDate(activity.date)}</Text>
+              </View>
+              <Text style={styles.activityDuration}>
+                {formatDuration(activity.duration)}
+              </Text>
+            </TouchableOpacity>
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -142,18 +226,40 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: '#333',
   },
-  activityItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  emptyActivity: {
+    color: '#888',
+    fontSize: 13,
   },
-  activityDate: {
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  activityIcon: {
+    fontSize: 22,
+    marginRight: 12,
+  },
+  activityDetails: {
+    flex: 1,
+  },
+  activityName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#333',
+  },
+  activityTime: {
     fontSize: 12,
     color: '#999',
-    marginBottom: 3,
+    marginTop: 3,
   },
-  activityWorkout: {
-    fontSize: 14,
-    color: '#333',
+  activityDuration: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#4CAF50',
   },
 });

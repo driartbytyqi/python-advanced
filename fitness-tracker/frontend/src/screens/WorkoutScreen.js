@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
 import { getWorkoutDetails } from '../services/api';
 
@@ -49,53 +48,8 @@ export default function WorkoutScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
-        <View style={styles.workoutHeader}>
-          <Text style={styles.workoutName}>{workout.name}</Text>
-          <Text style={styles.workoutDate}>{workout.date}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
-          {workout.exercises?.map((exercise, index) => (
-            <View key={index} style={styles.exerciseItem}>
-              <Text style={styles.exerciseName}>{exercise.name}</Text>
-              <Text style={styles.exerciseDetail}>
-                {exercise.sets} sets × {exercise.reps} reps
-              </Text>
-              {exercise.weight && (
-                <Text style={styles.exerciseDetail}>
-                  Weight: {exercise.weight} kg
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Duration</Text>
-          <Text style={styles.info}>{workout.duration} minutes</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Status</Text>
-          <Text
-            style={[
-              styles.info,
-              {
-                color: workout.completed ? '#4CAF50' : '#FF9800',
-              },
-            ]}
-          >
-            {workout.completed ? 'Completed' : 'In Progress'}
-          </Text>
-        </View>
+        <WorkoutDetailCard workout={workout} />
       </ScrollView>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.completeButton}>
-          <Text style={styles.buttonText}>Mark as Complete</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

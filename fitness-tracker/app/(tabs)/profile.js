@@ -146,17 +146,26 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Settings</Text>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/settings/notifications')}
+        >
           <Text style={styles.menuItemText}>🔔 Notifications</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/settings/goals')}
+        >
           <Text style={styles.menuItemText}>🎯 Goals</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/settings/privacy-security')}
+        >
           <Text style={styles.menuItemText}>🔐 Privacy & Security</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>
@@ -165,17 +174,26 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Help & Support</Text>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/support/about')}
+        >
           <Text style={styles.menuItemText}>ℹ️ About</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/support/contact')}
+        >
           <Text style={styles.menuItemText}>📧 Contact Us</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/support/terms')}
+        >
           <Text style={styles.menuItemText}>📋 Terms & Conditions</Text>
           <Text style={styles.menuItemArrow}>›</Text>
         </TouchableOpacity>

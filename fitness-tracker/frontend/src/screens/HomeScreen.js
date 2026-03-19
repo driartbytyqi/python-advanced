@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
-import { getWorkouts } from '../services/api';
+import { getWorkouts, logout } from '../services/api';
 import WorkoutCard from '../components/WorkoutCard';
+import { AuthContext } from '../context/AuthContext';
 
 export default function HomeScreen({ navigation }) {
+  const { setIsLoggedIn } = useContext(AuthContext);
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -41,6 +44,20 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('Workout', { workoutId: workout.id });
   };
 
+  const handleLogout = () => {
+    Alert.alert('Log out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log out',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          setIsLoggedIn(false);
+        },
+      },
+    ]);
+  };
+
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -53,9 +70,14 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Today's Workouts</Text>
-        <TouchableOpacity onPress={handleRefresh}>
-          <Text style={styles.refreshButton}>🔄</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={handleRefresh}>
+            <Text style={styles.refreshButton}>🔄</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {workouts.length === 0 ? (
@@ -100,8 +122,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   refreshButton: {
-    fontSize: 24,
+    fontSize: 22,
+    marginRight: 10,
+  },
+  logoutButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#E8F5E9',
+  },
+  logoutText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
   scrollView: {
     padding: 15,

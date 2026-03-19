@@ -10,7 +10,7 @@ router.get('/', authMiddleware, async (req, res) => {
     const userId = req.userId;
 
     const workouts = await db.all(
-      `SELECT w.*, COUNT(e.id) as exercise_count
+      `SELECT w.*, w.youtube_url, COUNT(e.id) as exercise_count
        FROM workouts w
        LEFT JOIN exercises e ON w.id = e.workout_id
        WHERE w.user_id = ?
@@ -42,7 +42,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
     const userId = req.userId;
 
     const workout = await db.get(
-      'SELECT * FROM workouts WHERE id = ? AND user_id = ?',
+      'SELECT *, youtube_url FROM workouts WHERE id = ? AND user_id = ?',
       [id, userId]
     );
 
@@ -67,7 +67,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Create workout
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, date, duration, notes } = req.body;
+    const { name, date, duration, notes, youtube_url } = req.body;
     const userId = req.userId;
 
     if (!name || !date) {
@@ -77,9 +77,9 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     const result = await db.run(
-      `INSERT INTO workouts (user_id, name, date, duration, notes)
-       VALUES (?, ?, ?, ?, ?)`,
-      [userId, name, date, duration || null, notes || null]
+      `INSERT INTO workouts (user_id, name, date, duration, notes, youtube_url)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId, name, date, duration || null, notes || null, youtube_url || null]
     );
 
     res.status(201).json({
@@ -96,7 +96,7 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, date, duration, completed, notes } = req.body;
+    const { name, date, duration, completed, notes, youtube_url } = req.body;
     const userId = req.userId;
 
     // Verify ownership
@@ -111,9 +111,9 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
     await db.run(
       `UPDATE workouts 
-       SET name = ?, date = ?, duration = ?, completed = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+       SET name = ?, date = ?, duration = ?, completed = ?, notes = ?, youtube_url = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
-      [name, date, duration, completed, notes, id]
+      [name, date, duration, completed, notes, youtube_url || null, id]
     );
 
     res.json({ message: 'Workout updated successfully' });
@@ -197,7 +197,7 @@ router.get('/progress/summary', authMiddleware, async (req, res) => {
     const stats = await db.get(
       `SELECT 
         COUNT(CASE WHEN completed = 1 THEN 1 END) as totalWorkouts,
-        COUNT(CASE WHEN strftime('%Y-%m', date) = strftime('%Y-%m', 'now') THEN 1 END) as thisMonth,
+        COUNT(CASE WHEN DATE_FORMAT(date, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m') THEN 1 END) as thisMonth,
         SUM(duration) as totalDuration
        FROM workouts
        WHERE user_id = ?`,
@@ -205,7 +205,7 @@ router.get('/progress/summary', authMiddleware, async (req, res) => {
     );
 
     const recentWorkouts = await db.all(
-      `SELECT name, date FROM workouts 
+      `SELECT id, name, date, duration FROM workouts 
        WHERE user_id = ? 
        ORDER BY date DESC 
        LIMIT 5`,
